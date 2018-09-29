@@ -1,0 +1,17 @@
+
+# Created by https://www.gitignore.io/api/batch,assembler
+
+### Assembler ###
+*.exe
+*.o
+*.obj
+*.bc
+
+### Batch ###
+# BatchFiles
+*.bat
+*.cmd
+*.btm
+
+
+# End of https://www.gitignore.io/api/batch,assembler
