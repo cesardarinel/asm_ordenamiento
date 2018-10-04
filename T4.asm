@@ -28,7 +28,7 @@ inicio:
            mov ah,09                    ; Para mostrar en pantalla una cadena
            mov dx, offset letrero       ; posición de la cadena a montar
            int 21h                      ; llamó al sistema
-
+           
            mov bx,00                    ; inicializar en cero
 ciclodelectura:
            mov ah,01                    ; para lectura de teclado.
@@ -54,6 +54,7 @@ imprimoLetreroCaptura:
            mov bx,00                    ; inicializando cero
            mov count,00                 ; inicializando cero(posibles errores)
            mov al,variableBuscada       ; muevo a al para comparar
+;*************************Contar los caracteres ***************************************
 ciclodeconteo:
            cmp arregloConDatos[bx],al   ; comparar el monto con la variable a buscar
            jne nocuento                 ; si no son iguales no cuento
@@ -64,7 +65,7 @@ ciclodeconteo:
            inc bx                       ; apuntó a la sgte. posición del buffer.
            jmp ciclodeconteo            ; retornamos al ciclo
 
-
+; ***************************ciclos de ordenamiento *****************************************
 ordenaminetoBurbuja:
         cmp bx,50                        ; verificó si debo de salir.
         je inicioPantalla                ; cuando termino de ordenar presento los datos
@@ -84,7 +85,7 @@ ordenaminetoBurbujainterno:
         inc si                           ;retorno el indicador a su valor inicial 
 incrementaciclointerno:                  
         jmp ordenaminetoBurbujainterno   ;continuo al siguiente paso del ciclo
-
+; ********************************************************************
 letreroFinal:
            mov al,count                 ; paso el monto a al para separarlos
            aam                          ;divide el resultado de una multiplicacion     
@@ -117,69 +118,51 @@ letreroFinal:
            mov bx,00                    ; inicializando cero
            mov di,00                    ; inicializando cero
            jmp ordenaminetoBurbuja
-; ********************************************************************
+; ********************** limpiar arreglo pantalla ***************************************
 inicioPantalla:
-           cmp di,80
-           je limpiopantalla
-           mov pantalla[di],32
-           inc di
-           jmp inicioPantalla
-
+           cmp di,80                    
+           ;comparo indicador para saber si esta en el extremos de la pantalla
+           je limpiopantalla            ;salto a limpiar pantalla para quedar en la misma pocicion
+           mov pantalla[di],32          ;lleno el arreglo pantalla con espacios 
+           inc di                       ; incremento el indicador
+           jmp inicioPantalla           ; continuo el ciclo
+; ********************** movimiento en pantalla ***************************************
 pantallaBono:   
-           cmp di,00
-           je reinicia
-           jmp next1
+           cmp di,00                    ;comparo con di con cero
+           je reinicia                  ; si es igual a cero reinicio el campo  
+           jmp next1                    ;continio con el ciclo
 reinicia: 
-           mov di,80
+           mov di,80                    ; inicio di con 80
    next1:
-
-           cmp bx,50
-           je reinicia2
-           jmp next2
+           cmp bx,50                    ;comparo mi arreglo con 50
+           je reinicia2                 ; si es 50, reinicio el arreglo
+           jmp next2                    ; continuo con el ciclo
 reinicia2: 
-           mov bx,00
+           mov bx,00                    ;muevo 0 a bx
    next2:
-           mov ah,0Bh                    ; para lectura de teclado.
-           int 21h                       ; llamada al SO
-           cmp al,0ffh                   ; verificar si se pulsa el Enter.
-           je Salir                      ; saltamos a solicitar el caracter si presiona enter
-           mov si,00 
+           mov ah,0Bh                   ;verifico si incertaron algo por teclado
+           int 21h                      ;llamada al SO
+           cmp al,0ffh                  ;comparo al con alguna tecla pulsada
+           je Salir                     ;salimos del programa si digitan algo
 copiodataPantalla:
-           mov al,arregloConDatos[bx]
-           mov pantalla[di],al
-           dec di
-           inc bx 
-           
+           mov al,arregloConDatos[bx]   ;muevo el valor del arreglo para usarlo
+           mov pantalla[di],al          ; inserto el valor en la pantalla
+           dec di                       ; decremento en uno indicador pantalla
+           inc bx                       ; incremento en uno indicador arreglo con datos
+        
            mov ah,09                    ; Para mostrar en pantalla una cadena
            mov dx, offset pantalla      ; posición de la cadena a montar
            int 21h                      ; llamada al sistema
 
 limpiopantalla:
-           mov dh, 23
-           mov dl, 80
-           mov bh, 0
-           mov ah, 2                    ; 
+           mov dh, 23                   ; posision en fila
+           mov dl, 80                   ; posiscion columna
+           mov bh, 0                    ; numeracion de pagina
+           mov ah, 2                    ; setear el cursor en una posicion 
            int 10h                      ; llamada al sistema 
-           jmp pantallaBono    
+           jmp pantallaBono             ; retorno al ciclo
+; ********************************************************************
 Salir:            
 ; ========================================================
 .exit
 end inicio
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
