@@ -1,6 +1,6 @@
 ; Autor: Cesar Darinel Ortiz
-; Tarea: 2 laboratorio
-; Fecha Entrega: 27/09/2018
+; Tarea: 3 laboratorio
+; Fecha Entrega: 04/10/2018
 
 .model small
 .stack 256
@@ -12,15 +12,15 @@ pedirvariable DB 'INSERTE LA VARIABLE A BUSCAR : $'
 ; texto insertar variable a buscar
 text2 DB 'Y SE REPITE : $'              ; Cadena a desplegar
 arregloConDatos db 51 dup (0)           ; buffer de lectura de cadena
-pantalla db 80 dup (00)           ; buffer de lectura de cadena
+pantalla db 80 dup (00)                 ; buffer del tamaño de la pantalla
 variableBuscada db 1 dup (0)            ; la variable que estamos buscando
 count db 1 dup (2)                      ; un contador
 segundodigito db 1 dup (2)              ; segundo dígito para imprimir
 .code
 ; ========================================================
 inicio:
-           mov ax,@data
-           mov ds,ax
+           mov ax,@data                 
+           mov ds,ax                        
            mov es,ax                    ; set segment register
            and sp,not 3                 ; align stack to avoid AC fault
 ; ==================Código==================================
@@ -33,6 +33,7 @@ inicio:
 ciclodelectura:
            mov ah,01                    ; para lectura de teclado.
            int 21h                      ; llamada al SO
+           
            cmp al,13                    ; verificar si se pulsa el Enter.
            je imprimoLetreroCaptura     ; saltamos a solicitar el caracter si presiona enter
            mov arregloConDatos[bx],al   ; copiar el carácter tomado en el buffer.
@@ -66,28 +67,27 @@ ciclodeconteo:
 
 ordenaminetoBurbuja:
         cmp bx,50                        ; verificó si debo de salir.
-        je inicioPantalla              ; si escribimos más de 50 caracteres dejo de leer
+        je inicioPantalla                ; cuando termino de ordenar presento los datos
         mov si,00                        ; inicializando cero
         inc bx                           ; apuntó a la sgte. posición del buffer.
 ordenaminetoBurbujainterno:
-        cmp si,50                        ; verificó si debo de salir.
-        jge ordenaminetoBurbuja                           ; si escribimos más de 50 caracteres dejo de leer
-        mov al,arregloConDatos[si]  
-        inc si  
-        cmp arregloConDatos[si], al      ;
-        jle incrementaciclointerno       ;  
-        mov ah, arregloConDatos[si]      ;
-        mov arregloConDatos[si],al
-        dec si      ;
-        mov arregloConDatos[si],ah
-        inc si  
-incrementaciclointerno:     ;
-        ;inc si                           ; apuntó a la sgte. posición del buffer.
-        jmp ordenaminetoBurbujainterno   ;   ;
+        cmp si,50                        ;verificó si debo de salir. termine de ciclar
+        jge ordenaminetoBurbuja          ;salto al ciclo anterior para ordenar.
+        mov al,arregloConDatos[si]       ;paso los datos al registro, para poder usarlo 
+        inc si                           ;incremento en uno el indicador 
+        cmp arregloConDatos[si], al      ;coparo el guardado con el indicador mas uno [2][1]
+        jle incrementaciclointerno       ;si el indicador es menor no hago calculos.
+        mov ah, arregloConDatos[si]      ;paso el valor a un registro para no perderlo
+        mov arregloConDatos[si],al       ;sustituyo el valor superior con el inferior 
+        dec si                           ;regreso a decrementar el indicador para usarlo
+        mov arregloConDatos[si],ah       ;sustituyo valor inferior con el superior
+        inc si                           ;retorno el indicador a su valor inicial 
+incrementaciclointerno:                  
+        jmp ordenaminetoBurbujainterno   ;continuo al siguiente paso del ciclo
 
 letreroFinal:
            mov al,count                 ; paso el monto a al para separarlos
-           aam
+           aam                          ;divide el resultado de una multiplicacion     
            ; separó el monto de al en dos y quedan en  (ah/al)
            mov count,ah                 ; muevo el monto de ah a la variable a presentar
            mov segundodigito,al         ; mover el monto de al a la variable a presentar
@@ -114,11 +114,10 @@ letreroFinal:
            mov dl,10                    ; imprimió el carácter de salto de línea
            int 21h                      ; llamada sistema
            
-           mov bx,00                     ; inicializando cero
-           mov di,00          
+           mov bx,00                    ; inicializando cero
+           mov di,00                    ; inicializando cero
            jmp ordenaminetoBurbuja
 ; ********************************************************************
-; continuó leyendo
 inicioPantalla:
            cmp di,80
            je limpiopantalla
@@ -132,14 +131,14 @@ pantallaBono:
            jmp next1
 reinicia: 
            mov di,80
-        next1:
+   next1:
 
            cmp bx,50
            je reinicia2
            jmp next2
 reinicia2: 
            mov bx,00
-        next2:
+   next2:
            mov ah,0Bh                    ; para lectura de teclado.
            int 21h                       ; llamada al SO
            cmp al,0ffh                   ; verificar si se pulsa el Enter.
@@ -150,23 +149,19 @@ copiodataPantalla:
            mov pantalla[di],al
            dec di
            inc bx 
-
+           
            mov ah,09                    ; Para mostrar en pantalla una cadena
-           mov dx, offset pantalla ; posición de la cadena a montar
-           int 21h
+           mov dx, offset pantalla      ; posición de la cadena a montar
+           int 21h                      ; llamada al sistema
 
 limpiopantalla:
-        mov dh, 23
-        mov dl, 80
-        mov bh, 0
-        mov ah, 2
-        int 10h 
-        jmp pantallaBono    
-
-
-                 ; continuó leyendo
-Salir:
-                    ; Llamada al sistema
+           mov dh, 23
+           mov dl, 80
+           mov bh, 0
+           mov ah, 2                    ; 
+           int 10h                      ; llamada al sistema 
+           jmp pantallaBono    
+Salir:            
 ; ========================================================
 .exit
 end inicio
